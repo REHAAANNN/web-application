@@ -18,6 +18,23 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Invoice Analytics API',
+    version: '1.0.0',
+    endpoints: {
+      stats: '/api/stats',
+      invoices: '/api/invoices',
+      vendors: '/api/vendors',
+      trends: '/api/invoice-trends',
+      categorySpend: '/api/category-spend',
+      cashOutflow: '/api/cash-outflow',
+      chat: '/api/chat-with-data'
+    }
+  });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
