@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Database, Table as TableIcon } from 'lucide-react';
+import { Send, Loader2, Database } from 'lucide-react';
 import { ChatMessage } from './ChatMessage';
 import { ResultsDisplay } from './ResultsDisplay';
 import ChatHistory, { saveChatMessage } from './ChatHistory';
