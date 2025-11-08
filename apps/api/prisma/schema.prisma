@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Invoice {
+  id                   String    @id
+  name                 String
+  filePath             String?
+  fileSize             BigInt?
+  fileType             String?
+  status               String
+  organizationId       String
+  departmentId         String
+  createdAt            DateTime
+  updatedAt            DateTime
+  isValidatedByHuman   Boolean   @default(false)
+  uploadedById         String
+  
+  // Invoice Details
+  invoiceNumber        String?
+  invoiceDate          DateTime?
+  deliveryDate         DateTime?
+  dueDate              DateTime?
+  
+  // Relationships
+  vendor               Vendor?   @relation(fields: [vendorId], references: [id])
+  vendorId             String?
+  customer             Customer? @relation(fields: [customerId], references: [id])
+  customerId           String?
+  lineItems            LineItem[]
+  payment              Payment?
+  summary              Summary?
+  
+  @@index([organizationId])
+  @@index([departmentId])
+  @@index([status])
+  @@index([invoiceDate])
+}
+
+model Vendor {
+  id               String    @id @default(uuid())
+  name             String
+  partyNumber      String?
+  address          String?
+  taxId            String?
+  email            String?
+  phone            String?
+  iban             String?
+  bic              String?
+  
+  invoices         Invoice[]
+  
+  @@index([name])
+  @@index([taxId])
+}
+
+model Customer {
+  id               String    @id @default(uuid())
+  name             String
+  partyNumber      String?
+  address          String?
+  taxId            String?
+  
+  invoices         Invoice[]
+  
+  @@index([name])
+}
+
+model LineItem {
+  id               String    @id @default(uuid())
+  invoiceId        String
+  invoice          Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  description      String
+  quantity         Float?
+  unitPrice        Float?
+  total            Float?
+  taxRate          Float?
+  taxAmount        Float?
+  articleNumber    String?
+  unit             String?
+  
+  @@index([invoiceId])
+}
+
+model Payment {
+  id               String    @id @default(uuid())
+  invoiceId        String    @unique
+  invoice          Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  dueDate          DateTime?
+  paymentTerms     String?
+  bankName         String?
+  iban             String?
+  bic              String?
+  accountHolder    String?
+  
+  @@index([dueDate])
+}
+
+model Summary {
+  id               String    @id @default(uuid())
+  invoiceId        String    @unique
+  invoice          Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  subTotal         Float
+  totalTax         Float
+  invoiceTotal     Float
+  currencySymbol   String    @default("EUR")
+  
+  @@index([invoiceTotal])
+}
